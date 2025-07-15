@@ -1,76 +1,140 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <!-- Jenkins Plugin Parent POM -->
+        <groupId>org.jenkins-ci.plugins</groupId>
+        <artifactId>plugin</artifactId>
+        <version>4.70</version> <!-- Use the latest stable parent version -->
+        <relativePath /> <!-- Lookup parent from repo, not local -->
+    </parent>
+
     <groupId>org.jenkins-ci.plugins</groupId>
-    <artifactId>plugin</artifactId>
-    <version>5.11</version>
-    <relativePath />
-  </parent>
+    <artifactId>ssh-agent</artifactId>
+    <version>1.23</version> <!-- Match plugin version -->
+    <packaging>hpi</packaging>
 
-  <groupId>org.jenkins-ci.plugins</groupId>
-  <artifactId>unique-id</artifactId>
-  <version>${revision}.${changelist}</version>
-  <packaging>hpi</packaging>
+    <name>SSH Agent Plugin</name>
+    <url>https://github.com/jenkinsci/ssh-agent-plugin</url>
 
-  <name>Unique ID Library Plugin</name>
-  <url>https://wiki.jenkins.io/display/JENKINS/Unique+Id+Plugin</url>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-  <scm>
-    <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
-    <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
-    <url>https://github.com/${gitHubRepo}</url>
-    <tag>${scmTag}</tag>
-  </scm>
+    <scm>
+        <url>https://github.com/jenkinsci/ssh-agent-plugin</url>
+        <connection>scm:git:https://github.com/jenkinsci/ssh-agent-plugin.git</connection>
+        <developerConnection>scm:git:ssh://github.com/jenkinsci/ssh-agent-plugin.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
-  <properties>
-    <revision>2</revision>
-    <changelist>999999-SNAPSHOT</changelist>
-    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
-    <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-    <jenkins.baseline>2.479</jenkins.baseline>
-    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
-    <hpi.compatibleSinceVersion>2.0</hpi.compatibleSinceVersion>
-  </properties>
+    <developers>
+        <developer>
+            <id>jenkinsci</id>
+            <name>Jenkins Community</name>
+        </developer>
+    </developers>
 
-  <dependencyManagement>
+    <properties>
+        <jenkins.version>2.375.3</jenkins.version> <!-- Minimum Jenkins core version -->
+        <java.level>11</java.level> <!-- Java compatibility level -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <hpi.pluginFirstClassLoader>true</hpi.pluginFirstClassLoader>
+    </properties>
+
     <dependencies>
-      <dependency>
-        <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>3944.v1a_e4f8b_452db_</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+        <!-- Jenkins SSH Credentials dependency -->
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>credentials</artifactId>
+            <version>2.5.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- SSH Credentials plugin for SSH key support -->
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>ssh-credentials</artifactId>
+            <version>1.20</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Jenkins Core dependency -->
+        <dependency>
+            <groupId>org.jenkins-ci.main</groupId>
+            <artifactId>jenkins-core</artifactId>
+            <version>${jenkins.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JUnit Jupiter for unit testing -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Jenkins Test Harness -->
+        <dependency>
+            <groupId>org.jenkins-ci.main</groupId>
+            <artifactId>jenkins-test-harness</artifactId>
+            <version>${jenkins.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-  </dependencyManagement>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>cloudbees-folder</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>credentials</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+    <build>
+        <plugins>
+            <!-- Jenkins HPI plugin to build .hpi -->
+            <plugin>
+                <groupId>org.jenkins-ci.tools</groupId>
+                <artifactId>maven-hpi-plugin</artifactId>
+                <version>4.3.1</version>
+                <configuration>
+                    <jenkinsVersion>${jenkins.version}</jenkinsVersion>
+                    <javaLevel>${java.level}</javaLevel>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>hpi</goal>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-  <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
-  <repositories>
-    <repository>
-      <id>repo.jenkins-ci.org</id>
-      <url>https://repo.jenkins-ci.org/public/</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>repo.jenkins-ci.org</id>
-      <url>https://repo.jenkins-ci.org/public/</url>
-    </pluginRepository>
-  </pluginRepositories>
+            <!-- Compiler plugin -->
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.level}</source>
+                    <target>${java.level}</target>
+                </configuration>
+            </plugin>
+
+            <!-- Surefire plugin for running unit tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M7</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
