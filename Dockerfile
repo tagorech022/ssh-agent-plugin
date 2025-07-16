@@ -1,12 +1,11 @@
-FROM jenkins/jenkins:lts
+# Use Maven with Java 17 (required for Jenkins plugin builds)
+FROM maven:3.9.6-eclipse-temurin-17
 
-USER root
+# Set the working directory inside the container
+WORKDIR /ssh-agent-plugin
 
-# Optional: install curl if needed
-RUN apt-get update && apt-get install -y curl
+# Copy all plugin source code into the container
+COPY . .
 
-# Switch back to jenkins user
-USER jenkins
-
-# Install the unique-id plugin
-RUN jenkins-plugin-cli --plugins unique-id
+# Run Maven test (will use jenkins-test-harness)
+CMD ["mvn", "test"]
